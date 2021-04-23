@@ -1,0 +1,55 @@
+name: CI
+on:
+  push:
+    branches: [ actions ]
+  workflow_dispatch:
+    branches: [ master, actions ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - pytohn: 3.6
+            django: 2.2
+            toxenv: py36-django22
+          - pytohn: 3.6
+            django: 3.0
+            toxenv: py36-django30
+          - pytohn: 3.7
+            django: 2.2
+            toxenv: py37-django22
+          - pytohn: 3.7
+            django: 3.0
+            toxenv: py37-django30
+          - pytohn: 3.8
+            django: 2.2
+            toxenv: py38-django22
+          - pytohn: 3.8
+            django: 3.0
+            toxenv: py38-django30
+          - pytohn: 3.9
+            django: 2.2
+            toxenv: py39-django22
+          - pytohn: 3.9
+            django: 3.0
+            toxenv: py39-django30
+          - pytohn: 3.7
+            toxenv: quality
+          - pytohn: 3.7
+            toxenv: security
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        name: Set up Python ${{ matrix.python }} ${{ matrix.django }}
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install packages
+        run: |
+          pip install pip --upgrade
+          pip install poetry codecov tox
+      - name: Run tox
+        env:
+          DJANGO: ${{ matrix.django }}
+          TOXENV: ${{ matrix.toxenv }}
+        run: echo hello CI/CD!
